@@ -25,6 +25,24 @@ TradingView alerts ──webhook──▶  server.js (this computer)  ──ngro
 
 ---
 
+## 🪟 Fastest path (Windows, basically one click)
+
+Prefer this if you don't want to touch a terminal:
+
+1. Install [Node.js](https://nodejs.org) and [ngrok](https://ngrok.com/download)
+   (or `winget install ngrok.ngrok`).
+2. Double-click **`setup-ngrok-windows.bat`**, paste your ngrok authtoken once.
+   (It's saved by ngrok itself — it never goes into any file here. Treat a token
+   you've shared anywhere as compromised and regenerate it in the dashboard.)
+3. Open **`start-windows.bat`** in Notepad and set `TV_SECRET` to a password of
+   your choice. Save.
+4. Double-click **`start-all-windows.bat`**. It launches the server *and* the
+   tunnel, and prints your public `https://….ngrok…` URL.
+5. Open that URL on computer three. In TradingView, the webhook URL is that URL
+   with `/tradingview` on the end. (Details in Step 3 below.)
+
+The manual, step-by-step version follows.
+
 ## Step 1 — Start the server (on this computer)
 
 You need [Node.js](https://nodejs.org) installed (any recent version). Then:
