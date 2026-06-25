@@ -1,0 +1,4 @@
+# Locally-collected signals — this is live data, not source code.
+signals.json
+server.log
+node_modules/
