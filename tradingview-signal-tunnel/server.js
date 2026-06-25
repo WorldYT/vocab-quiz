@@ -227,18 +227,20 @@ const DASHBOARD_HTML = `<!DOCTYPE html>
 <style>
   :root { color-scheme: dark; }
   * { box-sizing: border-box; }
-  body { margin:0; font-family: -apple-system, Segoe UI, Roboto, sans-serif; background:#0d1117; color:#e6edf3; }
-  header { padding:16px 20px; border-bottom:1px solid #21262d; display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
-  h1 { font-size:18px; margin:0; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin:0; font-family: -apple-system, Segoe UI, Roboto, sans-serif; background:#0d1117; color:#e6edf3; -webkit-tap-highlight-color: transparent; }
+  header { padding:14px 16px; border-bottom:1px solid #21262d; display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+  h1 { font-size:17px; margin:0; }
   .dot { width:10px; height:10px; border-radius:50%; background:#3fb950; display:inline-block; margin-right:6px; }
   .dot.off { background:#f85149; }
   .filters { display:flex; gap:8px; flex-wrap:wrap; margin-left:auto; }
-  .filters button { background:#21262d; color:#e6edf3; border:1px solid #30363d; padding:6px 12px; border-radius:6px; cursor:pointer; font-size:13px; }
+  .filters button { background:#21262d; color:#e6edf3; border:1px solid #30363d; padding:8px 14px; border-radius:8px; cursor:pointer; font-size:14px; min-height:40px; }
   .filters button.active { background:#1f6feb; border-color:#1f6feb; }
-  .stats { padding:10px 20px; font-size:13px; color:#8b949e; border-bottom:1px solid #21262d; }
+  .stats { padding:10px 16px; font-size:13px; color:#8b949e; border-bottom:1px solid #21262d; }
+  .wrap { overflow-x:auto; -webkit-overflow-scrolling: touch; }
   table { width:100%; border-collapse:collapse; }
   th, td { text-align:left; padding:10px 14px; border-bottom:1px solid #21262d; font-size:14px; white-space:nowrap; }
-  th { color:#8b949e; font-weight:600; position:sticky; top:0; background:#0d1117; font-size:12px; text-transform:uppercase; letter-spacing:.04em; }
+  th { color:#8b949e; font-weight:600; position:sticky; top:0; background:#0d1117; font-size:12px; text-transform:uppercase; letter-spacing:.04em; z-index:1; }
   td.action { font-weight:700; }
   .BUY { color:#3fb950; }
   .SELL { color:#f85149; }
@@ -246,8 +248,22 @@ const DASHBOARD_HTML = `<!DOCTYPE html>
   .muted { color:#8b949e; }
   tr.new { animation: flash 1.2s ease-out; }
   @keyframes flash { from { background:#1f6feb44; } to { background:transparent; } }
-  .empty { padding:40px 20px; color:#8b949e; }
+  .empty { padding:40px 16px; color:#8b949e; }
   code { background:#161b22; padding:2px 6px; border-radius:4px; }
+
+  /* ---- Phone layout: each signal becomes a stacked card ---- */
+  @media (max-width: 640px) {
+    h1 { font-size:16px; width:100%; }
+    .filters { margin-left:0; width:100%; }
+    .filters button { flex:1 1 auto; }
+    thead { display:none; }
+    table, tbody, tr, td { display:block; width:100%; }
+    tr { border:1px solid #21262d; border-radius:10px; margin:10px; padding:4px 2px; }
+    td { border:none; padding:7px 14px; white-space:normal; display:flex; justify-content:space-between; gap:12px; align-items:baseline; }
+    td::before { content: attr(data-label); color:#8b949e; font-size:12px; text-transform:uppercase; letter-spacing:.03em; flex:0 0 auto; }
+    td.action { font-size:18px; }
+    td:empty, td.empty-note { display:none; }
+  }
 </style>
 </head>
 <body>
@@ -263,6 +279,7 @@ const DASHBOARD_HTML = `<!DOCTYPE html>
   </div>
 </header>
 <div class="stats" id="stats">Loading…</div>
+<div class="wrap">
 <table>
   <thead>
     <tr>
@@ -277,6 +294,7 @@ const DASHBOARD_HTML = `<!DOCTYPE html>
   </thead>
   <tbody id="rows"></tbody>
 </table>
+</div>
 <div class="empty" id="empty">No signals yet. Once a TradingView alert fires, it will appear here instantly.</div>
 
 <script>
@@ -294,13 +312,13 @@ function render() {
   document.getElementById('empty').style.display = data.length ? 'none' : 'block';
   rows.innerHTML = data.map(s => \`
     <tr>
-      <td>\${fmt(s.received_at)}</td>
-      <td class="action \${s.action}">\${s.action}</td>
-      <td>\${s.symbol || ''}</td>
-      <td><span class="tf">\${s.timeframe || '?'}</span></td>
-      <td>\${s.price != null ? s.price : '<span class="muted">—</span>'}</td>
-      <td class="muted">\${s.bar_time || '—'}</td>
-      <td class="muted">\${(s.message || '').replace(/</g,'&lt;')}</td>
+      <td data-label="Received">\${fmt(s.received_at)}</td>
+      <td class="action \${s.action}" data-label="Action">\${s.action}</td>
+      <td data-label="Symbol">\${s.symbol || ''}</td>
+      <td data-label="Timeframe"><span class="tf">\${s.timeframe || '?'}</span></td>
+      <td data-label="Price">\${s.price != null ? s.price : '<span class="muted">—</span>'}</td>
+      <td class="muted" data-label="Bar time">\${s.bar_time || '—'}</td>
+      <td class="muted\${(s.message || '') ? '' : ' empty-note'}" data-label="Note">\${(s.message || '').replace(/</g,'&lt;')}</td>
     </tr>\`).join('');
   const buys = all.filter(s => s.action === 'BUY').length;
   const sells = all.filter(s => s.action === 'SELL').length;

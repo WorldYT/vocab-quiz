@@ -110,6 +110,43 @@ buttons at the top switch between 30m / 1h / 4h / 1D / All.
 > First visit to a free ngrok URL shows a one-time "Visit Site" warning page —
 > click through it once.
 
+The dashboard is **phone-friendly** — on a phone each signal shows as a tidy
+card instead of a wide table, so computer three can also just be your phone.
+
+## Step 5 — (Optional) Keep it running 24/7
+
+So you don't have to keep a terminal open:
+
+**Windows**
+1. Open `start-windows.bat` in Notepad and set your `TV_SECRET` (and `PORT` if
+   you changed it). Save.
+2. Double-click `start-windows.bat`. It runs the server and **auto-restarts** it
+   if it ever crashes. Leave the window minimized.
+3. To start it automatically and hidden every time you log in: press
+   `Win` + `R`, type `shell:startup`, press Enter, and drop a **shortcut** to
+   `start-hidden.vbs` into that folder. (To stop it: Task Manager → end
+   `node.exe`.)
+
+**Mac / Linux**
+```bash
+TV_SECRET=your-long-password ./start-unix.sh
+```
+Auto-restarts on crash. For a true background service, wire it into `systemd`
+(Linux) or `launchd` (Mac) — ask if you want a unit file.
+
+**Keep the public URL from changing.** Free ngrok normally gives a *new* URL
+each restart, which would break your TradingView alerts. Your free ngrok account
+includes **one reserved static domain** — set it once (Dashboard → Domains),
+then run ngrok like this so the URL is always the same:
+```bash
+ngrok http --url=your-name.ngrok-free.app 8000
+```
+You can also run ngrok itself as a background service:
+```bash
+ngrok service install     # run once (needs admin/sudo)
+ngrok service start
+```
+
 ---
 
 ## For developers / automation on computer three
